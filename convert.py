@@ -52,11 +52,11 @@ def convert(fname, pages=None):
     return text
 
 
-def section(text):
+def section(text,temp,temp3):
     sections = list()
     cap = '[A-Z]'
-    caps = '[A-Z]+'
-    digit = '[0-9]'
+    caps = '[A-Z\s]+$'
+    digit = '[0-9]+'
     content = '[A-Za-z]+'
     roman = '^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})'
     hyphen = '.'
@@ -69,41 +69,135 @@ def section(text):
     # heading2 = (heading|heading1)
     # inputtext = "I. SFFFG Phjbjk"
     # inputtext = open('files/input/trial.docx','r')
-    secsummary = ""
-    flag = 0
     # with open('files/input/trial.txt') as f:
-    i = 0
-    for line in text.readlines():
-        # print(line)
-        # print("bbbbbbbbbbbbbbbbbbbbbb")
 
-        if re.search(heading1, line) or re.search(heading2,line) or re.search(heading3,line):
-            print(line)
-            if i == 0:
+    def format1():
+        i = 0
+        secsummary=""
+        for line in temp.readlines():
+            # print(line)
+            # print("bbbbbbbbbbbbbbbbbbbbbb")
 
-                i = 1
+            if re.search(heading1, line) :
+                print(line)
+                if i == 0:
+
+                    i = 1
+                else:
+                    secsummary = sanitize_input(secsummary)
+                    print(secsummary)
+                    sections.append(secsummary)
+                    # con_file = open('files/input/content.txt','a')
+                    # print(text.encode('utf-8'))
+                    sentence_tokens, word_tokens = tokenize_content(secsummary)
+                    output_file.write(get_tokens(sentence_tokens, word_tokens))
+                    output_file.write("\n\n\n".encode('utf-8'))
+
+                    # sentence_tokens, word_tokens = tokenize_content(secsummary)
+
+                    # output_file = open('files/output/output.txt', 'a')
+                    # output_file.write(get_tokens(sentence_tokens, word_tokens))
+                    secsummary = ""
+                    i = 0
+                    # print(line)
+
             else:
-                secsummary = sanitize_input(secsummary)
-                print(secsummary)
-                sections.append(secsummary)
-                # con_file = open('files/input/content.txt','a')
-                # print(text.encode('utf-8'))
-                sentence_tokens, word_tokens = tokenize_content(secsummary)
-                output_file.write(get_tokens(sentence_tokens, word_tokens))
-                output_file.write("\n\n\n".encode('utf-8'))
 
-                # sentence_tokens, word_tokens = tokenize_content(secsummary)
+                secsummary = secsummary + line
+                i = 1
 
-                # output_file = open('files/output/output.txt', 'a')
-                # output_file.write(get_tokens(sentence_tokens, word_tokens))
-                secsummary = ""
-                i = 0
-                # print(line)
+    def format2():
+        secsummary = ""
+        i = 0
+        for line in temp.readlines():
+            # print(line)
+            # print("bbbbbbbbbbbbbbbbbbbbbb")
 
-        else:
+            if re.search(heading2, line):
+                print(line)
+                if i == 0:
 
-            secsummary = secsummary + line
-            i = 1
+                    i = 1
+                else:
+                    secsummary = sanitize_input(secsummary)
+                    print(secsummary)
+                    sections.append(secsummary)
+                    # con_file = open('files/input/content.txt','a')
+                    # print(text.encode('utf-8'))
+                    sentence_tokens, word_tokens = tokenize_content(secsummary)
+                    output_file.write(get_tokens(sentence_tokens, word_tokens))
+                    output_file.write("\n\n\n".encode('utf-8'))
+
+                    # sentence_tokens, word_tokens = tokenize_content(secsummary)
+
+                    # output_file = open('files/output/output.txt', 'a')
+                    # output_file.write(get_tokens(sentence_tokens, word_tokens))
+                    secsummary = ""
+                    i = 0
+                    # print(line)
+
+            else:
+
+                secsummary = secsummary + line
+                i = 1
+
+    def format3():
+        secsummary = ""
+        i = 0
+        for line in temp3.readlines():
+            # print(line)
+            # print("bbbbbbbbbbbbbbbbbbbbbb")
+
+            if re.search(heading3, line):
+                print(line)
+                if i == 0:
+
+                    i = 1
+                else:
+                    secsummary = sanitize_input(secsummary)
+                    print(secsummary)
+                    sections.append(secsummary)
+                    # con_file = open('files/input/content.txt','a')
+                    # print(text.encode('utf-8'))
+                    sentence_tokens, word_tokens = tokenize_content(secsummary)
+                    output_file.write(get_tokens(sentence_tokens, word_tokens))
+                    output_file.write("\n\n\n".encode('utf-8'))
+
+                    # sentence_tokens, word_tokens = tokenize_content(secsummary)
+
+                    # output_file = open('files/output/output.txt', 'a')
+                    # output_file.write(get_tokens(sentence_tokens, word_tokens))
+                    secsummary = ""
+                    i = 0
+                    # print(line)
+
+            else:
+
+                secsummary = secsummary + line
+                i = 1
+
+
+    def switch(format):
+        switcher = {
+            1:format1(),
+            2:format2(),
+            3:format3()
+
+        }
+        return switcher.get(format, "Invalid pattern")
+
+
+    for line in text.readlines():
+        if re.search(heading1, line):
+            switch(1)
+            break
+        elif re.search(heading2, line):
+            switch(2)
+            break
+        elif re.search(heading3, line):
+            switch(3)
+            break
+
 
 
 # text = convert('files/input/MotorSecure-Add-on-Covers-PolicyWordings.pdf').decode('utf-8')
@@ -113,5 +207,7 @@ def section(text):
 #    section(text)
 
 text = open('files/input/input.txt', 'r')
+temp = open('files/input/input.txt', 'r')
+temp3 = open('files/input/input.txt', 'r')
 output_file = open('files/output/output.txt', 'a+')
-section(text)
+section(text,temp,temp3)
