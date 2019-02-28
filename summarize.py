@@ -6,7 +6,8 @@ from nltk import word_tokenize
 
 def get_tokens(sentence_tokens, word_tokens):
     sentence_ranks = score_tokens(word_tokens, sentence_tokens)
-    return summarize(sentence_ranks, sentence_tokens, int(len(sentence_tokens) * 15 / 100))
+    return summarize(sentence_ranks, sentence_tokens, int(len(sentence_tokens) * 20/ 100))
+
 
 
 def summarize(ranks, sentences, length):
@@ -30,3 +31,4 @@ def score_tokens(filtered_words, sentence_tokens):
                 ranking[i] += word_freq[word]
 
     return ranking
+

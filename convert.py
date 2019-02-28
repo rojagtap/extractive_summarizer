@@ -7,6 +7,7 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
+import re
 
 
 def tokenize_content(content):
@@ -20,6 +21,7 @@ def tokenize_content(content):
 
 
 def sanitize_input(data):
+    # print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     data.replace('\f', ' ')
     data.replace('\t', ' ')
     data.replace('\r', '')
@@ -50,9 +52,66 @@ def convert(fname, pages=None):
     return text
 
 
-text = convert('files/input/MotorSecure-Add-on-Covers-PolicyWordings.pdf').decode('utf-8')
+def section(text):
+    sections = list()
+    cap = '[A-Z]'
+    caps = '[A-Z]+'
+    digit = '[0-9]'
+    content = '[A-Za-z]+'
+    roman = '^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})'
+    hyphen = '.'
+    space = '[\s]+'
+    newline = '[\n]'
+    heading1 = r"%s%c%s%s" % (roman, hyphen, space, caps)
+    heading2 = r"%s%c%s%s" % (cap, hyphen, space, caps)
+    heading3 = r"%s%c%s%s" % (digit, hyphen, space, caps)
+    con = r"%s" % (content)
+    # heading2 = (heading|heading1)
+    # inputtext = "I. SFFFG Phjbjk"
+    # inputtext = open('files/input/trial.docx','r')
+    secsummary = ""
+    flag = 0
+    # with open('files/input/trial.txt') as f:
+    i = 0
+    for line in text.readlines():
+        # print(line)
+        # print("bbbbbbbbbbbbbbbbbbbbbb")
+
+        if re.search(heading1, line) or re.search(heading2,line) or re.search(heading3,line):
+            print(line)
+            if i == 0:
+
+                i = 1
+            else:
+                secsummary = sanitize_input(secsummary)
+                print(secsummary)
+                sections.append(secsummary)
+                # con_file = open('files/input/content.txt','a')
+                # print(text.encode('utf-8'))
+                sentence_tokens, word_tokens = tokenize_content(secsummary)
+                output_file.write(get_tokens(sentence_tokens, word_tokens))
+                output_file.write("\n\n\n".encode('utf-8'))
+
+                # sentence_tokens, word_tokens = tokenize_content(secsummary)
+
+                # output_file = open('files/output/output.txt', 'a')
+                # output_file.write(get_tokens(sentence_tokens, word_tokens))
+                secsummary = ""
+                i = 0
+                # print(line)
+
+        else:
+
+            secsummary = secsummary + line
+            i = 1
+
+
+# text = convert('files/input/MotorSecure-Add-on-Covers-PolicyWordings.pdf').decode('utf-8')
 # text = open('files/input/input.txt').read().decode('utf-8')           # for text file testing
-text = sanitize_input(text)
-sentence_tokens, word_tokens = tokenize_content(text)
-output_file = open('files/output/output.txt', 'w')
-output_file.write(get_tokens(sentence_tokens, word_tokens).encode('utf-8'))
+
+# with open('files/input/trial.txt' , 'r') as text:
+#    section(text)
+
+text = open('files/input/input.txt', 'r')
+output_file = open('files/output/output.txt', 'a+')
+section(text)
